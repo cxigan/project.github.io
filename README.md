@@ -1,2 +1,2 @@
 # project1
-https://cxigan.github.io/progect.github.io/
+https://cxigan.github.io/project.github.io/
