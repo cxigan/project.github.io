@@ -7,35 +7,52 @@ document.addEventListener('DOMContentLoaded', function () { //вся HTML-стр
   });
 });
 
-document.getElementById("downloadBtn").addEventListener("click", function() {
-  // Путь к файлу (убедитесь, что он правильный)
+document.getElementById("downloadBtn").addEventListener("click", async function() {
   const fileUrl = 'quiz.pdf';
-  const fileName = 'cybersecurity-quiz.pdf'; // Можно задать другое имя для скачивания
-
-  // Проверяем доступность файла перед скачиванием
-  fetch(fileUrl, { method: 'HEAD' })
-    .then(response => {
-      if (response.ok) {
-        // Файл доступен - начинаем скачивание
-        const link = document.createElement('a');
-        link.href = fileUrl;
-        link.download = fileName;
-        
-        // Для надежности добавляем атрибут target
-        link.setAttribute('target', '_blank');
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Освобождаем память (для blob-ссылок)
-        setTimeout(() => URL.revokeObjectURL(link.href), 100);
-      } else {
-        throw new Error('Файл не найден');
-      }
-    })
-    .catch(error => {
-      console.error('Ошибка:', error);
-      alert('Файл не доступен для скачивания. Пожалуйста, сообщите администратору.');
+  const fileName = 'cybersecurity-quiz.pdf';
+  const downloadBtn = this;
+  
+  try {
+    // 1. Показываем индикатор загрузки
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = 'Подготовка...';
+    
+    // 2. Проверяем доступность файла
+    const response = await fetch(fileUrl, { 
+      method: 'HEAD',
+      cache: 'no-cache'
     });
+    
+    if (!response.ok) throw new Error('Файл не найден');
+    
+    // 3. Создаем ссылку с уникальным временным URL
+    const link = document.createElement('a');
+    const file = await fetch(fileUrl).then(r => r.blob());
+    const tempUrl = URL.createObjectURL(file);
+    
+    link.href = tempUrl;
+    link.download = fileName;
+    link.style.display = 'none';
+    
+    // 4. Особые обработчики для мобильных устройств
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    // 5. Чистка через таймаут (важно!)
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(tempUrl);
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = 'Скачать квиз-игру';
+    }, 1000);
+    
+  } catch (error) {
+    console.error('Ошибка загрузки:', error);
+    alert('Не удалось начать загрузку. Попробуйте позже или сообщите администратору.');
+    downloadBtn.disabled = false;
+    downloadBtn.textContent = 'Скачать квиз-игру';
+  }
 });
