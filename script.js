@@ -11,7 +11,7 @@ document.getElementById("downloadBtn").addEventListener("click", function () {
 
   // Создаём невидимую ссылку и "кликаем" по ней
   const link = document.createElement("a"); // получаем кнопку скачивания по ID.
-  link.href = "quiz.pdf"
+  link.href = "downloads/quiz.pdf"
   link.download = "quiz.pdf"; // Без этого файл может открыться вместо скачивания!
   document.body.appendChild(link);//
   link.click();//программно "кликаем" по ссылке, запуская скачивание
