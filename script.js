@@ -7,13 +7,35 @@ document.addEventListener('DOMContentLoaded', function () { //вся HTML-стр
   });
 });
 
-document.getElementById("downloadBtn").addEventListener("click", function () {
+document.getElementById("downloadBtn").addEventListener("click", function() {
+  // Путь к файлу (убедитесь, что он правильный)
+  const fileUrl = 'quiz.pdf';
+  const fileName = 'cybersecurity-quiz.pdf'; // Можно задать другое имя для скачивания
 
-  // Создаём невидимую ссылку и "кликаем" по ней
-  const link = document.createElement("a"); // получаем кнопку скачивания по ID.
-  link.href = "quiz.pdf"
-  link.download = "quiz.pdf"; // Без этого файл может открыться вместо скачивания!
-  document.body.appendChild(link);//
-  link.click();//программно "кликаем" по ссылке, запуская скачивание
-  document.body.removeChild(link);//удаляем ссылку из DOM после скачивания
+  // Проверяем доступность файла перед скачиванием
+  fetch(fileUrl, { method: 'HEAD' })
+    .then(response => {
+      if (response.ok) {
+        // Файл доступен - начинаем скачивание
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        
+        // Для надежности добавляем атрибут target
+        link.setAttribute('target', '_blank');
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Освобождаем память (для blob-ссылок)
+        setTimeout(() => URL.revokeObjectURL(link.href), 100);
+      } else {
+        throw new Error('Файл не найден');
+      }
+    })
+    .catch(error => {
+      console.error('Ошибка:', error);
+      alert('Файл не доступен для скачивания. Пожалуйста, сообщите администратору.');
+    });
 });
